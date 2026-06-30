@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: filescout-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: filescout_db
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: filescout-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_URL=jdbc:mysql://db:3306/filescout_db
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - APP_SECURITY_USERNAME=${APP_SECURITY_USERNAME}
+      - APP_SECURITY_PASSWORD=${APP_SECURITY_PASSWORD}
+
+volumes:
+  mysql_data:
