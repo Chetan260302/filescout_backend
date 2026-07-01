@@ -1,5 +1,5 @@
 # Stage 1 - Build (Using Java 21 JDK)
-FROM maven:3.9-eclipse-temurin-21 as build
+FROM maven:3.9-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
@@ -7,14 +7,20 @@ COPY pom.xml .
 COPY mvnw .
 COPY .mvn .mvn
 
+# Make Maven Wrapper executable
+RUN chmod +x mvnw
+
+# Download dependencies (cached layer)
 RUN ./mvnw dependency:go-offline
 
+# Copy application source
 COPY src src
 
+# Build application
 RUN ./mvnw clean package -DskipTests
 
 
-# Stage 2 - Runtime (Using Java 21 Alpine JRE for a tiny image)
+# Stage 2 - Runtime
 FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
