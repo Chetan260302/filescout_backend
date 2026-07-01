@@ -1,5 +1,7 @@
 package com.filescout.filescout_api.user.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -38,5 +40,11 @@ public class User {
 
     @Column(nullable =false)
     private boolean active;
+
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
 
 }
